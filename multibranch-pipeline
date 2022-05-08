@@ -1,1 +1,41 @@
-
+pipeline {
+    agent 
+    {
+    label 'node-wallmart'
+    }
+    tools {
+        maven 'maven3.8.4'
+    }
+    stages {
+        stage ('Checkout the code') {
+            steps{
+                git credentialsId: '7bd7de2d-3587-4582-9bdf-16e7c8b4dcd8', url: 'https://github.com/Purvansh-MedicalCare/maven-web-application.git'
+            }
+        }
+        stage ('Build the code') {
+            steps {
+                sh " mvn clean package"
+            }
+        }
+        stage ('Execute sonarqube report') {
+            steps {
+                sh " mvn sonar:sonar"
+            }
+        }
+        stage ('Upload artifacts into nexus') {
+            steps {
+                 sh " mvn deploy"
+                
+            }
+        }
+        stage ('Deploy the application into tomcat') {
+            steps {
+            sshagent(['76a35492-9e4b-43cc-9a26-b391c0fc0e7c']) {
+    sh " scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@52.66.143.226:/opt/apache-tomcat-9.0.62/webapps/"
+}
+        }
+            
+        }
+    }
+    
+}
