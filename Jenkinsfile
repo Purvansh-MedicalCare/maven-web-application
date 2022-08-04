@@ -1,4 +1,4 @@
-node ('master')
+node ('dependabot/maven/junit-junit-4.13.1')
 
 
 {
